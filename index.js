@@ -239,7 +239,7 @@ app.get('/v1/assignments', auth, async (req, res) => {
 
   // Public Route
   app.get('/healthz', (req, res) => {
-    res.status(200).json({ message: 'Health check passed' });
+    res.status(200).end();
   });
 
  
@@ -248,3 +248,4 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 }); 
 
+module.exports = app;
