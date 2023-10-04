@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: app-test  
+    name: apptest.js  
     runs-on: ubuntu-latest
 
     strategy:
