@@ -1,0 +1,250 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const mysql = require('mysql2');
+const fs = require('fs');
+const csv = require('csv-parser');
+const bcrypt = require('bcrypt');
+const {Assignment, Account, AccAssignment} = require('./models');
+const { sequelize } = require('./models');
+const auth = require('./auth');
+
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.use(bodyParser.json()); 
+app.use(bodyParser.urlencoded({ extended: true }));
+
+sequelize.authenticate().then(() => {
+    console.log('Connection has been established successfully.');
+ }).catch((error) => {
+    console.error('Unable to connect to the database: ', error);
+ });
+
+ //get username from request
+const getEmail = (req) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Basic ')) {
+      return res.status(401).json({ message: 'Authentication header missing or invalid' });
+    }
+
+    // Extract and decode the Base64 credentials
+    const base64Credentials = authHeader.split(' ')[1];
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
+    const [email, password] = credentials.split(':');
+    return email;
+  };
+
+  const authUser = async (email, id) => {
+    const sql1 = await Account.findOne({ where: { email: email } });
+    const ownerId1 = sql1.dataValues.id;
+    const sql2 = await AccAssignment.findOne({ where: { assign_Id: id } });
+  
+    const ownerId2 = sql2.dataValues.acc_Id;
+  
+    if (ownerId1 != ownerId2) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+
+// GET /v1/assignments
+app.get('/v1/assignments', auth, async (req, res) => {
+    try {
+      // Retrieve a list of all assignments
+      const assignments = await Assignment.findAll();
+      res.status(200).json(assignments);
+    } catch (error) {
+      console.error('Error fetching assignments:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  // POST /v1/assignments
+  app.post('/v1/assignments', auth, async (req, res) => {
+    try {
+
+        const fields = req.body;
+        for (const key in fields) {
+          if (
+            key !== "name" &&
+            key !== "points" &&
+            key !== "num_of_attempts" &&
+            key !== "deadline" 
+          ) {
+            return res.status(400).send({
+              error: "Bad Request: Invalid field in request body",
+            });
+          }
+        }
+    
+        //to check if any input fields is null
+        if (
+          !req.body.name ||
+          !req.body.points ||
+          !req.body.num_of_attempts ||
+          !req.body.deadline == null
+        ) {
+          return res.status(400).send({
+            error: "Bad Request: Missing field in request body",
+          });
+        }
+
+      const email = getEmail(req);
+    
+      const { name, points, num_of_attempts, deadline } = req.body;
+
+      const accUser = await Account.findOne({ where: { email: email } });
+
+
+      if (points < 1 || points > 10) {
+            return res.status(400).json({ error: 'Assignment points must be between 1 and 10.' });
+      }
+  
+      // Create a new assignment
+      const newAssignment = await Assignment.create({
+        name,
+        points,
+        num_of_attempts,
+        deadline
+      });
+
+      await AccAssignment.create({
+        acc_Id: accUser.id,
+        assign_Id: newAssignment.id,
+      });
+  
+      res.status(201).json(newAssignment);
+    } catch (error) {
+      console.error('Error creating assignment:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  // GET /v1/assignments/{id}
+  app.get('/v1/assignments/:id', auth, async (req, res) => {
+    try {
+      const assignmentId = req.params.id;
+  
+      // Find the assignment by ID
+      const assignment = await Assignment.findByPk(assignmentId);
+  
+      if (!assignment) {
+        return res.status(404).json({ message: 'Assignment not found' });
+      }
+  
+      res.status(200).json(assignment);
+    } catch (error) {
+      console.error('Error fetching assignment:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  // DELETE /v1/assignments/{id}
+  app.delete('/v1/assignments/:id', auth, async (req, res) => {
+    try {
+      const email = getEmail(req);
+      const assignmentId = req.params.id;
+  
+      // Find the assignment by ID
+      const assignment = await Assignment.findByPk(assignmentId);
+  
+      if (!assignment) {
+        return res.status(404).json({ message: 'Assignment not found' });
+      }
+  
+      // Delete the assignment
+      if (await authUser(email, assignmentId)) {
+        await AccAssignment.destroy({ where: { assign_Id: assignmentId } });
+        const results = await Assignment.destroy({ where: { id: assignmentId } });
+        res.status(204).send();
+      } else {
+        res.status(403).send({ message: "Forbidden" });
+      }
+
+    } catch (error) {
+      console.error('Error deleting assignment:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  // PUT /v1/assignments/{id}
+  app.put('/v1/assignments/:id', auth, async (req, res) => {
+    try {
+
+      const email = getEmail(req);
+
+      const assignmentId = req.params.id;
+      const { name, points, num_of_attempts, deadline } = req.body;
+  
+      // Find the assignment by ID
+      const assignment = await Assignment.findByPk(assignmentId);
+  
+      if (!assignment) {
+        return res.status(404).json({ message: 'Assignment not found' });
+      }
+
+      if (await authUser(email, assignmentId)) {
+        const fields = req.body;
+        for (const key in fields) {
+          if (
+            key !== "name" &&
+            key !== "points" &&
+            key !== "num_of_attempts" &&
+            key !== "deadline" 
+          ) {
+            return res.status(400).send({
+              error: "Bad Request: Invalid field in request body",
+            });
+          }
+        }
+    
+        //to check if any input fields is null
+        if (
+          !req.body.name ||
+          !req.body.points ||
+          !req.body.num_of_attempts ||
+          !req.body.deadline == null
+        ) {
+          return res.status(400).send({
+            error: "Bad Request: Missing field in request body",
+          });
+        }
+  
+        assignment.name = name;
+        assignment.points = points;
+        assignment.num_of_attempts = num_of_attempts;
+        assignment.deadline = deadline;
+        assignment.assignment_updated = new Date();
+    
+        await assignment.save();
+    
+        res.status(200).json(assignment);
+      } else {
+        res.status(403).send({ message: "Forbidden" });
+      }
+      
+    } catch (error) {
+      console.error('Error updating assignment:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.patch('/v1/assignments/:id', (req, res) => {
+    res.status(405).end();
+  });
+
+  // Public Route
+  app.get('/healthz', (req, res) => {
+    res.status(200).json({ message: 'Health check passed' });
+  });
+
+ 
+
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+}); 
+
