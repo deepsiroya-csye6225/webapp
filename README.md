@@ -22,7 +22,7 @@
 - Run npm init --yes
 - Run npm i 
   
-### To run project 
+
 
 
 
