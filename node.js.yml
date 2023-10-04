@@ -10,7 +10,6 @@ on:
 
 jobs:
   build:
-    name: app-test  
     runs-on: ubuntu-latest
 
     strategy:
