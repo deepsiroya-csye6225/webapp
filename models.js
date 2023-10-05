@@ -6,7 +6,7 @@ const csv = require('csv-parser');
 const { DataTypes } = require('sequelize');
 const path = require('path');
 
-// dotenv.config();
+
 
 const sequelize = new Sequelize(
     'mydb', 
