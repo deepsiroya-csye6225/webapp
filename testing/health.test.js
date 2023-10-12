@@ -7,13 +7,8 @@ chai.use(chaiHttp);
 
 
 describe("/GET healthz", () => {
-    it("it should GET healthz status", (done) => { 
-      chai
-        .request(server)
-        .get("/healthz")
-        .end((err, res) => {
-          expect(res).to.have.status(200);
-          done();
-        });
+  it("it should GET healthz status", async () => {
+    const res = await chai.request(server).get("/healthz")
+    res.should.have.status(200);
   });
 });
