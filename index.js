@@ -69,39 +69,30 @@ app.get('/v1/assignments', auth, async (req, res) => {
 
         const fields = req.body;
         for (const key in fields) {
-          if (
-            key !== "name" &&
-            key !== "points" &&
-            key !== "num_of_attempts" &&
-            key !== "deadline" 
-          ) {
-            return res.status(400).send({
-              error: "Bad Request: Invalid field in request body",
-            });
+          if ( key !== "name" && key !== "points" && key !== "num_of_attempts" && key !== "deadline" ) {
+            return res.status(400).json({error: "Bad Request: Invalid field in request body"});
           }
         }
     
         //to check if any input fields is null
-        if (
-          !req.body.name ||
-          !req.body.points ||
-          !req.body.num_of_attempts ||
-          !req.body.deadline == null
-        ) {
-          return res.status(400).send({
-            error: "Bad Request: Missing field in request body",
-          });
+        if (!req.body.name == null || !req.body.points || !req.body.num_of_attempts || !req.body.deadline == null) {
+          return res.status(400).json({error: "Bad Request: Missing field in request body"});
         }
 
       const email = getEmail(req);
     
-      const { name, points, num_of_attempts, deadline } = req.body;
+      let { name, points, num_of_attempts, deadline } = req.body;
 
       const accUser = await Account.findOne({ where: { email: email } });
 
+      if (typeof name !== 'string') {
+        return res.status(400).json({ error: 'Assignment name must be a string.' });
+      }
 
-      if (points < 1 || points > 10) {
-            return res.status(400).json({ error: 'Assignment points must be between 1 and 10.' });
+      points = parseInt(req.body.points);
+
+      if (isNaN(points) || !Number.isInteger(points) || points < 1 || points > 10) {
+          return res.status(400).json({ error: 'Assignment points must be a numeric value between 1 and 10.' });
       }
   
       // Create a new assignment
@@ -178,7 +169,7 @@ app.get('/v1/assignments', auth, async (req, res) => {
       const email = getEmail(req);
 
       const assignmentId = req.params.id;
-      const { name, points, num_of_attempts, deadline } = req.body;
+      let { name, points, num_of_attempts, deadline } = req.body;
   
       // Find the assignment by ID
       const assignment = await Assignment.findByPk(assignmentId);
@@ -190,29 +181,26 @@ app.get('/v1/assignments', auth, async (req, res) => {
       if (await authUser(email, assignmentId)) {
         const fields = req.body;
         for (const key in fields) {
-          if (
-            key !== "name" &&
-            key !== "points" &&
-            key !== "num_of_attempts" &&
-            key !== "deadline" 
-          ) {
-            return res.status(400).send({
-              error: "Bad Request: Invalid field in request body",
-            });
+          if ( key !== "name" && key !== "points" && key !== "num_of_attempts" && key !== "deadline" ) {
+            return res.status(400).json({error: "Bad Request: Invalid field in request body"});
           }
         }
     
         //to check if any input fields is null
-        if (
-          !req.body.name ||
-          !req.body.points ||
-          !req.body.num_of_attempts ||
-          !req.body.deadline == null
-        ) {
-          return res.status(400).send({
-            error: "Bad Request: Missing field in request body",
-          });
+        if (!req.body.name == null || !req.body.points || !req.body.num_of_attempts || !req.body.deadline == null) {
+          return res.status(400).json({error: "Bad Request: Missing field in request body"});
         }
+
+        if (typeof name !== 'string') {
+          return res.status(400).json({ error: 'Assignment name must be a string.' });
+        }
+
+        points = parseInt(req.body.points);
+
+        if (isNaN(points) || !Number.isInteger(points) || points < 1 || points > 10) {
+            return res.status(400).json({ error: 'Assignment points must be a numeric value between 1 and 10.' });
+        }
+      
   
         assignment.name = name;
         assignment.points = points;
@@ -237,10 +225,14 @@ app.get('/v1/assignments', auth, async (req, res) => {
     res.status(405).end();
   });
 
-  // Public Route
-  app.get('/healthz', (req, res) => {
-    res.status(200).end();
-  });
+
+  app.all('/healthz', (req, res) => {
+    if (req.method !== 'GET') {
+        res.status(404).end();
+    } else {
+        res.status(200).end();
+    }
+});
 
  
 

@@ -21,22 +21,7 @@
 - Install node
 - Run npm init --yes
 - Run npm i 
-  
 
-
-
-
-## provide paramaneter to env file to you have created one
-
-PORT=  yourport 
-
-HOST= yourhost
-DBUSER= youruser
-PASSWORD= yourpassword
-DATABASE= yourdatabase
-
-
-  
 
 - Use set command to add environment variable
 - set PORT=3000
@@ -47,4 +32,3 @@ DATABASE= yourdatabase
 ### To install mysql 
 - Run npm install --save mysql2
 
-## Assign 3

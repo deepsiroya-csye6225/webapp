@@ -10,8 +10,8 @@ const path = require('path');
 
 const sequelize = new Sequelize(
     'mydb', 
-    'root', 
-    'Deep@5987', 
+    'Hostname', 
+    'Password', 
     {
         host: 'localhost',
         dialect: 'mysql',
