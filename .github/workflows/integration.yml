@@ -15,8 +15,6 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 14.x
-          - 16.x
           - 18.x
 
     steps:
@@ -42,4 +40,4 @@ jobs:
         run: npm run build --if-present
 
       - name: Run Tests
-        run: npm test
+        run: npm test --hostname ${{ secrets.DB_HOSTNAME }} --password ${{ secrets.DB_PASSWORD }}
