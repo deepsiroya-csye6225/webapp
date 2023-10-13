@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --exit testing"
+    "test": "mocha --exit testing --hostname $DB_HOSTNAME --password $DB_PASSWORD"
   },
 
   "author": "",
