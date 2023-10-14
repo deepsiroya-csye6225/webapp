@@ -1,4 +1,4 @@
-## Cloud Assignment 3
+## CSYE6225 Assignment - 3
 
 ### Git Command Workflow for adding origin
 - git remote -v
