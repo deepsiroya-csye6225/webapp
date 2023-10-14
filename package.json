@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --exit testing --hostname $DB_HOSTNAME --password $DB_PASSWORD"
+    "test": "mocha --exit testing"
   },
-
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -14,6 +13,7 @@
     "chai": "^4.3.10",
     "chai-http": "^4.4.0",
     "csv-parser": "^3.0.0",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
     "mocha": "^10.2.0",
