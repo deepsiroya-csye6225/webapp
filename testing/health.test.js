@@ -1,10 +1,9 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const expect = chai.expect;
-const server = require("../index.js"); 
+const server = require("../index.js");
 
 chai.use(chaiHttp);
-
+chai.should();
 
 describe("/GET healthz", () => {
   it("it should GET healthz status", async () => {
