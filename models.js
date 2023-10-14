@@ -1,22 +1,22 @@
 const { Sequelize } = require('sequelize');
 const bcrypt = require('bcrypt');
-// const dotenv = require('dotenv');
+const dotenv = require('dotenv');
 const fs = require('fs');
 const csv = require('csv-parser');
 const { DataTypes } = require('sequelize');
 const path = require('path');
 
-
+dotenv.config();
 
 const sequelize = new Sequelize(
-    'mydb', 
-    'DB_HOSTNAME', 
-    'DB_PASSWORD', 
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
     {
-        host: 'localhost',
-        dialect: 'mysql',
+      host: process.env.DB_HOSTNAME,
+      dialect: 'mysql',
     }
-);
+  );
 
 const Account = sequelize.define('accounts', {
     first_name: {
@@ -39,10 +39,6 @@ const Account = sequelize.define('accounts', {
 }, {
     timestamps: true,
 });
-
-// User.prototype.verifyCredentials = async function (password) {
-//     return bcrypt.compare(password, this.password);
-// };
 
 const Assignment = sequelize.define('assignments', {
     name: {
