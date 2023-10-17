@@ -1,0 +1,27 @@
+name: Packer Validate
+
+on:
+  [pull_request]
+
+
+jobs:
+  packer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Zip folder creation
+        run: |
+          mkdir cloud_assign
+          zip -r webapp . -x ".git/" ".github/" "node_modules/*" "cloud_assign"
+          mv webapp.zip cloud_assign
+
+      - name: Initialize packer configuration
+        run: packer init aws-debian.pkr.hcl
+
+      - name: Format template
+        run: packer fmt aws-debian.pkr.hcl
+
+      - name: Validate template
+        run: packer validate aws-debian.pkr.hcl
