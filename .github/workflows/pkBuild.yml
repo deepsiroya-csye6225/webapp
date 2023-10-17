@@ -22,9 +22,9 @@ jobs:
     - name: Setup Packer
       run: |
         curl -Lo packer.zip https://releases.hashicorp.com/packer/1.9.4/packer_1.9.4_linux_amd64.zip
-        unzip packer.zip
+        unzip -y packer.zip
         sudo mv packer /usr/local/bin/
-
+        
     - name: Build AMI
       env:
         AWS_DEFAULT_REGION: us-east-1
