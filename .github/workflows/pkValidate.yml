@@ -17,11 +17,10 @@ jobs:
           zip -r webapp . -x ".git/" ".github/" "node_modules/*" "cloud_assign"
           mv webapp.zip cloud_assign
 
-      - name: Initialize packer configuration
-        run: packer init aws-debian.pkr.hcl
-
-      - name: Format template
-        run: packer fmt aws-debian.pkr.hcl
-
-      - name: Validate template
-        run: packer validate aws-debian.pkr.hcl
+      - name: Validate Template
+        run: |
+          cd packer
+          packer init aws-debian.pkr.hcl
+          packer fmt aws-debian.pkr.hcl
+          packer validate aws-debian.pkr.hcl
+          packer build aws-debian.pkr.hcl
