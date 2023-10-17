@@ -58,7 +58,7 @@ build {
   sources = ["source.amazon-ebs.debian-ami"]
 
   provisioner "file" {
-    source      = "./cloud_assign/webapp.zip"
+    source      = "webapp.zip"
     destination = "/tmp/webapp.zip"
 }
 
