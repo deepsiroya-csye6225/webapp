@@ -25,8 +25,7 @@ jobs:
         rm -rf packer
         unzip packer.zip
         sudo mv packer /usr/local/bin/
-
-
+        
     - name: Build AMI
       env:
         AWS_DEFAULT_REGION: us-east-1
