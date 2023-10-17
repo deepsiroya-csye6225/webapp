@@ -14,7 +14,7 @@ jobs:
       - name: Zip folder creation
         run: |
           mkdir cloud_assign
-          zip -r webapp . -x ".git/*" ".github/*" "node_modules/*" "packer"
+          zip -r webapp . -x ".git*" ".github*" "node_modules*" "packer"
           mv webapp.zip cloud_assign
 
       - name: List Directory Contents After Zip
