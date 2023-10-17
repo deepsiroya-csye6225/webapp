@@ -18,7 +18,9 @@ jobs:
           mv webapp.zip cloud_assign
 
       - name: List Directory Contents After Zip
-        run: ls -al
+        run: |
+          ls -al
+          ls cloud_assign
 
       - name: Validate Template
         run: |
