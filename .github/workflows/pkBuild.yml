@@ -34,6 +34,8 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
       run: |
           cd pkr
+          packer init aws-debian.pkr.hcl
+          packer validate aws-debian.pkr.hcl
           packer build aws-debian.pkr.hcl
 
     - name: Retrieve AMI ID
