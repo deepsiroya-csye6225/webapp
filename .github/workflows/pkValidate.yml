@@ -14,8 +14,7 @@ jobs:
       - name: Zip folder creation
         run: |
           mkdir cloud_assign
-          zip -r webapp . -x ".git/" ".github/" "node_modules/*" "cloud_assign"
-          mv webapp.zip cloud_assign
+          zip -r cloud_assign/webapp . -x ".git/*" "node_modules/*" 
 
       - name: Validate Template
         run: |
