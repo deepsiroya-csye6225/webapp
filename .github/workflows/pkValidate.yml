@@ -28,4 +28,3 @@ jobs:
           packer init aws-debian.pkr.hcl
           packer fmt aws-debian.pkr.hcl
           packer validate aws-debian.pkr.hcl
-          packer build aws-debian.pkr.hcl
