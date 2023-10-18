@@ -53,7 +53,7 @@ jobs:
           packer init aws-debian.pkr.hcl
           packer validate aws-debian.pkr.hcl
           packer build aws-debian.pkr.hcl
-
+    
     - name: Retrieve AMI ID
       run: |
         AMI_ID=$(jq -r '.builds[0].artifact_id' manifest.json | cut -d ':' -f 2)
@@ -67,6 +67,7 @@ jobs:
         AWS_DEFAULT_REGION: us-east-1
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        AMI_ID: ${{ env.AMI_ID }}
+        AMI_ID: ${{ env.AMI_ID }}
+
 
 
