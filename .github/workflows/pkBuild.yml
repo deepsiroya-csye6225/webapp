@@ -44,6 +44,10 @@ jobs:
         AWS_DEFAULT_REGION: us-east-1
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_HOSTNAME: ${{ secrets.DB_HOSTNAME }}
       run: |
           cd pkr
           packer init aws-debian.pkr.hcl
@@ -53,10 +57,17 @@ jobs:
     - name: Retrieve AMI ID
       id: retrieve-ami-id
       run: |
-        AMI_ID=$(aws ec2 describe-images --filters "Name=tag:BuiltBy,Values=GitHubActions-${GITHUB_RUN_ID}" --query "Images[0].ImageId" --output text)
+        AMI_ID=$(jq -r '.builds[0].artifact_id' manifest.json | cut -d ':' -f 2)
         echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
 
     - name: Share AMI with DEMO Account
       run: |
         DEMO_ACCOUNT_ID="704056066364"
         aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "Add=[{UserId=$DEMO_ACCOUNT_ID}]"
+      env:
+        AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        AMI_ID: ${{ env.AMI_ID }}
+
+

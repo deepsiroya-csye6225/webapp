@@ -8,22 +8,29 @@ fi
 sudo apt update -y
 sudo apt upgrade -y
 
-sudo apt install nodejs npm -y
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs 
 
 sudo apt install mariadb-server -y
-sudo mariadb
+sudo systemctl start mariadb
 
-echo "create user ${DB_USER}@localhost identified by '${DB_PASSWORD}';" | sudo mariadb
-echo "flush privileges;" | sudo mariadb
-echo "grant all on *.* to ${DB_USER}@localhost with grant option;" | sudo mariadb
-echo "flush privileges;" | sudo mariadb
-echo "create database ${DB_NAME};" | sudo mariadb
-quit
+sudo mysql -u root <<-EOF
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$DB_PASSWORD');
+FLUSH PRIVILEGES;
+EOF
+
+mysql -u root -p"$DB_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
 
 sudo apt install -y unzip
 
-mkdir ~/webapp
-unzip webapp.zip -d ~/webapp
-cd ~/webapp && npm i
+sudo mkdir ~/webapp
+sudo unzip /tmp/webapp.zip -d ~/webapp
+cd ~/webapp 
+sudo npm i
+
+echo "DB_HOSTNAME=$DB_HOSTNAME" | sudo tee -a .env >/dev/null
+echo "DB_USER=$DB_USER" | sudo tee -a .env >/dev/null
+echo "DB_PASSWORD=$DB_PASSWORD" | sudo tee -a .env >/dev/null
+echo "DB_NAME=$DB_NAME" | sudo tee -a .env >/dev/null
 
 sudo apt-get clean
