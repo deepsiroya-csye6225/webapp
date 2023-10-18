@@ -65,7 +65,7 @@ jobs:
         DEMO_ACCOUNT_ID="704056066364"
         aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "Add=[{UserId=$DEMO_ACCOUNT_ID}]"
       env:
-        AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+        AWS_DEFAULT_REGION: us-east-1
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
         AMI_ID: ${{ env.AMI_ID }}
