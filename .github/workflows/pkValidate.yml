@@ -18,6 +18,7 @@ jobs:
       - name: List Directory Contents After Zip
         run: |
           ls -al
+          pwd
 
       - name: Validate Template
         run: |
