@@ -11,7 +11,6 @@ sudo apt upgrade -y
 sudo apt install nodejs npm -y
 
 sudo apt install mariadb-server -y
-sudo mysql_secure_installation
 sudo mariadb
 
 echo "create user '${DB_USER}'@'localhost' identified by '${DB_PASSWORD}';" | sudo mariadb
