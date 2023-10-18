@@ -67,7 +67,7 @@ build {
       "DEBIAN_FRONTEND=noninteractive",
       "CHECKPOINT_DISABLE=1"
     ]
-    script = "./install-pkg.sh"
+    script = "./pkg-install.sh"
   }
 
 }

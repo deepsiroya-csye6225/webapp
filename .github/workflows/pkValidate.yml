@@ -13,11 +13,12 @@ jobs:
 
       - name: Zip folder creation
         run: |
-          zip -r webapp . -x ".git*" ".github*" "node_modules*"
+          zip -r webapp.zip . -x ".git*" ".github*" "node_modules*"
 
       - name: List Directory Contents After Zip
         run: |
           ls -al
+          pwd
 
       - name: Validate Template
         run: |
