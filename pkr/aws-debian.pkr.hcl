@@ -58,7 +58,7 @@ build {
   sources = ["source.amazon-ebs.debian-ami"]
 
   provisioner "file" {
-    source      = "webapp.zip"
+    source      = "/webapp.zip"
     destination = "/tmp/webapp.zip"
 }
 
@@ -67,7 +67,7 @@ build {
       "DEBIAN_FRONTEND=noninteractive",
       "CHECKPOINT_DISABLE=1"
     ]
-    script = "./install-pkg.sh"
+    script = "./pkg-install.sh"
   }
 
 }
