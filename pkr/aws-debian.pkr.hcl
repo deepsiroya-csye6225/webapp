@@ -12,6 +12,34 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "DB_PASSWORD" {
+  type        = string
+  default     = env("DB_PASSWORD")
+  description = "Database password"
+  sensitive   = true
+}
+
+variable "DB_USER" {
+  type        = string
+  default     = env("DB_USER")
+  description = "Database user"
+  sensitive   = true
+}
+
+variable "DB_NAME" {
+  type        = string
+  default     = env("DB_NAME")
+  description = "Database name"
+  sensitive   = true
+}
+
+variable "DB_HOSTNAME" {
+  type        = string
+  default     = env("DB_HOSTNAME")
+  description = "Database host"
+  sensitive   = true
+}
+
 
 variable "instance_type" {
   type    = string
@@ -42,9 +70,11 @@ source "amazon-ebs" "debian-ami" {
     "us-east-1",
   ]
 
+   ami_users = ["308496972111", "704056066364"]
+
   aws_polling {
-    delay_seconds = 50
-    max_attempts  = 25
+    delay_seconds = 120
+    max_attempts  = 50
   }
 
   instance_type = "${var.instance_type}"
@@ -65,9 +95,18 @@ build {
   provisioner "shell" {
     environment_vars = [
       "DEBIAN_FRONTEND=noninteractive",
-      "CHECKPOINT_DISABLE=1"
+      "CHECKPOINT_DISABLE=1",
+      "DB_PASSWORD=${var.DB_PASSWORD}",
+      "DB_USER=${var.DB_USER}",
+      "DB_NAME=${var.DB_NAME}",
+      "DB_HOSTNAME=${var.DB_HOSTNAME}",
     ]
     script = "./pkg-install.sh"
+  }
+
+  post-processor "manifest" {
+    output     = "manifest.json"
+    strip_path = true
   }
 
 }
