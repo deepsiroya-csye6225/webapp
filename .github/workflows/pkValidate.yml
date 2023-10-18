@@ -15,9 +15,6 @@ jobs:
         run: |
           zip -r webapp . -x ".git*" ".github*" "node_modules*"
 
-      - name: Set Environment Variable
-        run: echo "::set-env name=WEBAPP_PATH::./webapp.zip"
-
       - name: List Directory Contents After Zip
         run: |
           ls -al
