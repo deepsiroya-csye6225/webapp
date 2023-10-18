@@ -34,7 +34,7 @@ echo "DB_PASSWORD=$DB_PASSWORD" | sudo tee -a .env >/dev/null
 echo "DB_NAME=$DB_NAME" | sudo tee -a .env >/dev/null
 
 sudo npm install -g pm2
-pm2 start app.js
+pm2 start index.js
 pm2 save
 pm2 startup | sudo bash
 
