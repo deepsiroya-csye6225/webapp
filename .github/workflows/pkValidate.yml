@@ -18,7 +18,6 @@ jobs:
       - name: List Directory Contents After Zip
         run: |
           ls -al
-          ls cloud_assign
 
       - name: Validate Template
         run: |
