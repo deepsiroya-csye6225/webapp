@@ -7,7 +7,7 @@ packer {
   }
 }
 
-variable "aws_region"   {
+variable "aws_region" {
   type    = string
   default = "us-east-1"
 }
@@ -62,7 +62,7 @@ variable "subnet_id" {
 }
 
 source "amazon-ebs" "debian-ami" {
-  region          = "${var.aws_region}"
+  region          = "${var.aws_regions}"
   ami_name        = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
   ami_description = "CSYE6225_Cloud_DebianAMI"
 
