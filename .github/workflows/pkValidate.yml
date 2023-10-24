@@ -20,6 +20,13 @@ jobs:
           ls -al
           pwd
 
+      - name: Setup Packer
+        run: |
+          curl -Lo packer.zip https://releases.hashicorp.com/packer/1.9.4/packer_1.9.4_linux_amd64.zip
+          rm -rf packer
+          unzip packer.zip
+          sudo mv packer /usr/local/bin/
+
       - name: Validate Template
         run: |
           cd pkr
