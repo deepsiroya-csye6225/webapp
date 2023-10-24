@@ -70,7 +70,9 @@ source "amazon-ebs" "debian-ami" {
     "us-east-1",
   ]
 
-   ami_users = ["308496972111", "704056066364"]
+  ami_users = [
+    "308496972111", "704056066364"
+  ]
 
   aws_polling {
     delay_seconds = 120
