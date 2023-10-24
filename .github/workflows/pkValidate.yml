@@ -24,5 +24,5 @@ jobs:
         run: |
           cd pkr
           packer init aws-debian.pkr.hcl
-          packer fmt aws-debian.pkr.hcl
+          packer fmt -check aws-debian.pkr.hcl
           packer validate aws-debian.pkr.hcl
