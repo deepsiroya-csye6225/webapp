@@ -1,7 +1,9 @@
 name: Packer Validate
 
 on:
-  [pull_request]
+  pull_request:
+    branches:
+      - main
 
 
 jobs:
