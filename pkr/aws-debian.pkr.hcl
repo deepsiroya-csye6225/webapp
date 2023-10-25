@@ -95,7 +95,7 @@ build {
   }
 
   provisioner "file" {
-    source      = "./node-app.service"
+    source      = "../node-app.service"
     destination = "/tmp/node-app.service"
   }
 
