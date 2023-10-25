@@ -4,7 +4,7 @@ After=network.target cloud-init.service
 Wants=cloud-init.service
 
 [Service]
-WorkingDirectory=/tmp/webapp
+WorkingDirectory=/opt/webapp
 Environment=NODE_PORT=3000
 Type=simple
 ExecStart=/usr/bin/node /opt/webapp/index.js
