@@ -20,6 +20,7 @@ cd /opt/webapp
 sudo npm i
 
 sudo mv /tmp/node-app.service /lib/systemd/system/node-app.service 
+sudo systemctl daemon-reload
 sudo systemctl enable node-app.service
 sudo systemctl start node-app.service
 
