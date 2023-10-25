@@ -23,9 +23,9 @@ mysql -u root -p"$DB_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
 
 sudo apt install -y unzip
 
-sudo mkdir ~/opt/webapp
-sudo unzip /tmp/webapp.zip -d ~/opt/webapp
-cd ~/opt/webapp 
+sudo mkdir /opt/webapp
+sudo unzip /tmp/webapp.zip -d /opt/webapp
+cd /opt/webapp 
 
 
 echo "DB_HOSTNAME=$DB_HOSTNAME" | sudo tee -a .env >/dev/null
