@@ -94,6 +94,11 @@ build {
     destination = "/tmp/webapp.zip"
   }
 
+  provisioner "file" {
+     source = "./node-app.service"
+     destination = "/tmp/node-app.service"
+  }
+
   provisioner "shell" {
     environment_vars = [
       "DEBIAN_FRONTEND=noninteractive",

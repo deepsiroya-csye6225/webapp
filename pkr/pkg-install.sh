@@ -35,8 +35,8 @@ echo "DB_NAME=$DB_NAME" | sudo tee -a .env >/dev/null
 
 sudo npm i
 
-# sudo mv /tmp/node-app.service /etc/systemd/system/node-app.service
-# sudo systemctl enable webapp.service
-# sudo systemctl start webapp.service
+sudo mv /tmp/node-app.service /etc/systemd/system/node-app.service
+sudo systemctl enable node-app.service
+sudo systemctl start node-app.service
 
 sudo apt-get clean
