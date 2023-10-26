@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Load environment variables from the .env file
-if [ -f .env ]; then
-  export $(cat .env | xargs)
-fi
-
 sudo apt update -y
 sudo apt upgrade -y
 
@@ -22,7 +17,7 @@ sudo npm i
 sudo mv /tmp/node-app.service /lib/systemd/system/node-app.service 
 
 sudo groupadd csye6225
-sudo useradd -s /bin/false -g csye6225 -d /opt/webapp -m csye6225
+sudo useradd -s /bin/false -g csye6225 -d /opt/webapp csye6225
 sudo chown -R csye6225:csye6225 /opt/webapp
 sudo chown -R csye6225:csye6225 /etc/environment
 sudo chmod -R 755 /opt/webapp
@@ -30,7 +25,4 @@ sudo chmod -R 755 /opt/webapp
 sudo systemctl daemon-reload
 sudo systemctl enable node-app.service
 sudo systemctl start node-app.service
-
-sudo apt-get clean
-
 
