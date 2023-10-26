@@ -12,34 +12,6 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
-variable "DB_PASSWORD" {
-  type        = string
-  default     = env("DB_PASSWORD")
-  description = "Database password"
-  sensitive   = true
-}
-
-variable "DB_USER" {
-  type        = string
-  default     = env("DB_USER")
-  description = "Database user"
-  sensitive   = true
-}
-
-variable "DB_NAME" {
-  type        = string
-  default     = env("DB_NAME")
-  description = "Database name"
-  sensitive   = true
-}
-
-variable "DB_HOSTNAME" {
-  type        = string
-  default     = env("DB_HOSTNAME")
-  description = "Database host"
-  sensitive   = true
-}
-
 
 variable "instance_type" {
   type    = string
@@ -103,10 +75,6 @@ build {
     environment_vars = [
       "DEBIAN_FRONTEND=noninteractive",
       "CHECKPOINT_DISABLE=1",
-      "DB_PASSWORD=${var.DB_PASSWORD}",
-      "DB_USER=${var.DB_USER}",
-      "DB_NAME=${var.DB_NAME}",
-      "DB_HOSTNAME=${var.DB_HOSTNAME}",
     ]
     script = "./pkg-install.sh"
   }
