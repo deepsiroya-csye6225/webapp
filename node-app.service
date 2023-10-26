@@ -8,11 +8,10 @@ Type=simple
 Group=csye6225
 User=csye6225
 WorkingDirectory=/opt/webapp
-EnvironmentFile=/etc/environment
 ExecStart=/usr/bin/node /opt/webapp/index.js
+EnvironmentFile=/etc/environment
 Restart=always
-RestartSec=5
-TimeoutSec=5
+RestartSec=10
 
 [Install]
 WantedBy=cloud-init.target
