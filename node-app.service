@@ -1,17 +1,17 @@
 [Unit]
 Description=My Node.js App
-After=network.target cloud-init.service
-Wants=cloud-init.service
+After=cloud-init.service
 
 [Service]
 WorkingDirectory=/opt/webapp
 Environment=NODE_PORT=3000
+EnvironmentFile=/etc/environment
 Type=simple
 ExecStart=/usr/bin/node /opt/webapp/index.js
-Restart=on-failure
+Restart=always
 RestartSec=5
 TimeoutSec=5
 user=csye6225
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=cloud-init.target
