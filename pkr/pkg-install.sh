@@ -2,7 +2,7 @@
 
 set -e
 
-sudo apt update -y
+sudo apt update
 sudo apt upgrade -y
 
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
@@ -14,7 +14,7 @@ sudo mkdir /opt/webapp
 sudo unzip /tmp/webapp.zip -d /opt/webapp
 cd /opt/webapp 
 
-sudo npm i
+
 
 sudo mv /tmp/node-app.service /lib/systemd/system/node-app.service 
 
@@ -24,7 +24,8 @@ sudo chown -R csye6225:csye6225 /opt/webapp
 sudo chown -R csye6225:csye6225 /etc/environment
 sudo chmod -R 755 /opt/webapp
 
+sudo -u csye6225 npm i
+
 sudo systemctl daemon-reload
-sudo systemctl enable node-app.service
-sudo systemctl start node-app.service
-sudo systemctl restart node-app.service
+sudo systemctl start node-app
+sudo systemctl enable node-app
