@@ -228,8 +228,11 @@ app.get('/v1/assignments', auth, async (req, res) => {
 
   app.all('/healthz', (req, res) => {
     if (req.method !== 'GET') {
-        res.status(404).end();
+        res.status(405).end();
     } else {
+        if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+          return res.status(400).set(headers).end();
+        }
         res.status(200).end();
     }
 });

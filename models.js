@@ -5,6 +5,7 @@ const fs = require('fs');
 const csv = require('csv-parser');
 const { DataTypes } = require('sequelize');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 dotenv.config();
 
@@ -41,6 +42,12 @@ const Account = sequelize.define('accounts', {
 });
 
 const Assignment = sequelize.define('assignments', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: () => uuidv4(), // Generate a UUID as the default value
+        primaryKey: true,
+        allowNull: false,
+    },
     name: {
         type: DataTypes.STRING,
         allowNull: false,
