@@ -25,5 +25,5 @@ sudo chown -R csye6225:csye6225 /etc/environment
 sudo chmod -R 755 /opt/webapp
 
 sudo systemctl daemon-reload
-sudo systemctl start node-app.service
-sudo systemctl enable node-app.service
+sudo systemctl start node-app
+sudo systemctl enable node-app
