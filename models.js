@@ -20,6 +20,12 @@ const sequelize = new Sequelize(
   );
 
 const Account = sequelize.define('accounts', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: () => uuidv4(), // Generate a UUID as the default value
+        primaryKey: true,
+        allowNull: false,
+    },
     first_name: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -74,11 +80,11 @@ const Assignment = sequelize.define('assignments', {
 
 const AccAssignment = sequelize.define('accassignments', {
     acc_Id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
     },
     assign_Id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
     },
 });

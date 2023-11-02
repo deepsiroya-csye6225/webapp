@@ -10,6 +10,7 @@ User=csye6225
 WorkingDirectory=/opt/webapp
 ExecStart=/usr/bin/node /opt/webapp/index.js
 EnvironmentFile=/etc/environment
+Environment=NODE_PORT=3000
 Restart=always
 RestartSec=10
 
