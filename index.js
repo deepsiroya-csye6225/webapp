@@ -7,7 +7,6 @@ const csv = require('csv-parser');
 const bcrypt = require('bcrypt');
 const {Assignment, Account, AccAssignment} = require('./models');
 const { sequelize } = require('./models');
-const { Sequelize } = require('sequelize');
 const auth = require('./auth');
 
 
@@ -18,16 +17,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 dotenv.config();
-
-const sequelize_demo = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASSWORD,
-    {
-      host: process.env.DB_HOSTNAME,
-      dialect: 'mysql',
-    }
-  );
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');
@@ -240,22 +229,14 @@ app.get('/v1/assignments', auth, async (req, res) => {
   });
 
 
-  app.all('/healthz', (req, res) => {
+app.all('/healthz', (req, res) => {
     if (req.method !== 'GET') {
         res.status(405).end();
     } else {
-      sequelize_demo.authenticate().then(() => {
-        if (err) {
-          res.status(503).end();
-        } else {
-          if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
-            return res.status(400).set(headers).end();
-          }
-          res.status(200).end();
+        if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+          return res.status(400).set(headers).end();
         }
-     }).catch((error) => {
-        console.error('Unable to connect to the database: ', error);
-     });
+        res.status(200).end();
     }
 });
 
