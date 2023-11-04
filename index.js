@@ -18,15 +18,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 dotenv.config();
 
-app.use(async (req, res, next) => {
-  try {
-      await sequelize.authenticate();
-      next();
-  } catch (error) {
-      console.error('Database connection error:', error);
-      res.status(503).send();
-  }
-});
+sequelize.authenticate().then(() => {
+    console.log('Connection has been established successfully.');
+ }).catch((error) => {
+    console.error('Unable to connect to the database: ', error);
+ });
 
  //get username from request
 const getEmail = (req) => {
@@ -239,23 +235,36 @@ app.get('/v1/assignments', auth, async (req, res) => {
         return res.status(400).set(headers).end();
     }
 
-    res.status(200).end();
+    res.status(200).set(headers).end();
 
 });
 
 app.all('/healthz', (req, res) => {
-    res.status(405).end();
+    res.status(405).set(headers).end();
 });
 
-sequelize.authenticate().then(() => {
-  console.log('Connection has been established successfully.');
-}).catch((error) => {
-  console.error('Unable to connect to the database: ', error);
+
+app.all('/healthz', async (req, res) => {
+  try{
+    if (req.method !== 'GET') {
+      res.status(405).end();
+    } else {
+      if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+        return res.status(400).set(headers).end();
+      }
+      // await sequelize.authenticate();
+      res.status(200).end();
+    }
+  }
+  catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+   
 });
+
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port ${port}`);
 }); 
-
 
 module.exports = app;
