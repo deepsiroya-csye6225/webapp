@@ -228,22 +228,6 @@ app.get('/v1/assignments', auth, async (req, res) => {
     res.status(405).end();
   });
 
-
-  app.get('/healthz', async (req, res) => {
-
-    if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
-        return res.status(400).set(headers).end();
-    }
-
-    res.status(200).set(headers).end();
-
-});
-
-app.all('/healthz', (req, res) => {
-    res.status(405).set(headers).end();
-});
-
-
 app.all('/healthz', (req, res) => {
   try{
     if (req.method !== 'GET') {
