@@ -7,6 +7,7 @@ const csv = require('csv-parser');
 const bcrypt = require('bcrypt');
 const {Assignment, Account, AccAssignment} = require('./models');
 const { sequelize } = require('./models');
+const { Sequelize } = require('sequelize');
 const auth = require('./auth');
 
 
