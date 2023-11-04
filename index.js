@@ -233,30 +233,29 @@ app.get('/v1/assignments', auth, async (req, res) => {
   });
 
 
-  app.get('/healthz', (req, res) => {
+  app.get('/healthz', async (req, res) => {
 
     if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
         return res.status(400).set(headers).end();
     }
 
-    res.status(200).set(headers).end();
+    res.status(200).end();
 
 });
 
 app.all('/healthz', (req, res) => {
-    res.status(405).set(headers).end();
+    res.status(405).end();
 });
 
 sequelize.authenticate().then(() => {
   console.log('Connection has been established successfully.');
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  }); 
 }).catch((error) => {
   console.error('Unable to connect to the database: ', error);
 });
 
-
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+}); 
 
 
 module.exports = app;

@@ -127,7 +127,7 @@ const bootstrappingDB = async () => {
 };
 
 sequelize
-    .sync()
+    .sync({ force: true })
     .then(() => {
         bootstrappingDB();
     })
