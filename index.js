@@ -243,16 +243,18 @@ app.get('/v1/assignments', auth, async (req, res) => {
     if (req.method !== 'GET') {
         res.status(405).end();
     } else {
-      sequelize_demo.connect((err) => {
-          if (err) {
-            res.status(503).end();
-          } else {
-            if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
-              return res.status(400).set(headers).end();
-            }
-            res.status(200).end();
+      sequelize_demo.authenticate().then(() => {
+        if (err) {
+          res.status(503).end();
+        } else {
+          if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+            return res.status(400).set(headers).end();
           }
-      });
+          res.status(200).end();
+        }
+     }).catch((error) => {
+        console.error('Unable to connect to the database: ', error);
+     });
     }
 });
 
