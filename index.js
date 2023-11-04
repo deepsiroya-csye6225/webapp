@@ -244,7 +244,7 @@ app.all('/healthz', (req, res) => {
 });
 
 
-app.all('/healthz', async (req, res) => {
+app.all('/healthz', (req, res) => {
   try{
     if (req.method !== 'GET') {
       res.status(405).end();
@@ -252,7 +252,6 @@ app.all('/healthz', async (req, res) => {
       if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
         return res.status(400).set(headers).end();
       }
-      // await sequelize.authenticate();
       res.status(200).end();
     }
   }
