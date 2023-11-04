@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
+const dotenv = require('dotenv');
 const fs = require('fs');
 const csv = require('csv-parser');
 const bcrypt = require('bcrypt');
@@ -14,6 +15,18 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
+
+dotenv.config();
+
+const sequelize = new Sequelize(
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
+    {
+      host: process.env.DB_HOSTNAME,
+      dialect: 'mysql',
+    }
+  );
 
 sequelize.authenticate().then(() => {
     console.log('Connection has been established successfully.');
@@ -230,9 +243,8 @@ app.get('/v1/assignments', auth, async (req, res) => {
     if (req.method !== 'GET') {
         res.status(405).end();
     } else {
-      dbConnection.connect((err) => {
+      sequelize.connect((err) => {
           if (err) {
-            // Error connecting to the database; return a 503 Service Unavailable status
             res.status(503).end();
           } else {
             if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
