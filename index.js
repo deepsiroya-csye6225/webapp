@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 dotenv.config();
 
-const sequelize = new Sequelize(
+const sequelize_demo = new Sequelize(
     process.env.DB_NAME,
     process.env.DB_USER,
     process.env.DB_PASSWORD,
@@ -243,7 +243,7 @@ app.get('/v1/assignments', auth, async (req, res) => {
     if (req.method !== 'GET') {
         res.status(405).end();
     } else {
-      sequelize.connect((err) => {
+      sequelize_demo.connect((err) => {
           if (err) {
             res.status(503).end();
           } else {
