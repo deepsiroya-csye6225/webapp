@@ -229,15 +229,22 @@ app.get('/v1/assignments', auth, async (req, res) => {
   });
 
 
-app.all('/healthz', (req, res) => {
+app.all('/healthz', async (req, res) => {
+  try{
     if (req.method !== 'GET') {
-        res.status(405).end();
-    } else {
-        if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
-          return res.status(400).set(headers).end();
-        }
-        res.status(200).end();
+      res.status(405).end();
+  } else {
+      if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+        return res.status(400).set(headers).end();
+      }
+      await sequelize.authenticate();
+      res.status(200).end();
     }
+  }
+  catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+   
 });
 
 
