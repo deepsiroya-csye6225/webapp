@@ -230,14 +230,20 @@ app.get('/v1/assignments', auth, async (req, res) => {
     if (req.method !== 'GET') {
         res.status(405).end();
     } else {
-        if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
-          return res.status(400).set(headers).end();
-        }
-        res.status(200).end();
+      dbConnection.connect((err) => {
+          if (err) {
+            // Error connecting to the database; return a 503 Service Unavailable status
+            res.status(503).end();
+          } else {
+            if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+              return res.status(400).set(headers).end();
+            }
+            res.status(200).end();
+          }
+      });
     }
 });
 
- 
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
