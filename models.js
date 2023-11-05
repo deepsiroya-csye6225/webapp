@@ -127,7 +127,7 @@ const bootstrappingDB = async () => {
 };
 
 sequelize
-    .sync()
+    .sync({ force: true })
     .then(() => {
         bootstrappingDB();
     })
@@ -135,7 +135,4 @@ sequelize
         console.error('Database synchronization error:', error);
     });
 
-module.exports = { sequelize, 
-        Account,
-        Assignment,
-        AccAssignment,};
+module.exports = { sequelize, Account, Assignment, AccAssignment,};
