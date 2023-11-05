@@ -18,11 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 dotenv.config();
 
-sequelize.authenticate().then(() => {
-    console.log('Connection has been established successfully.');
- }).catch((error) => {
-    console.error('Unable to connect to the database: ', error);
- });
+
 
  //get username from request
 const getEmail = (req) => {
@@ -249,9 +245,16 @@ app.all('/healthz', (req, res) => {
     }
 });
 
-
-app.listen(port, () => {
+sequelize.authenticate().then(() => {
+  console.log('Connection has been established successfully.');
+  app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-}); 
+  });
+}).catch((error) => {
+  console.error('Unable to connect to the database: ', error);
+});
+
+
+ 
 
 module.exports = app;
