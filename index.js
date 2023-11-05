@@ -25,6 +25,16 @@ sequelize.authenticate().then(() => {
 });
 
 
+// app.use(async (req, res, next) => {
+//   try {
+//       await sequelize.authenticate();
+//       next();
+//   } catch (error) {
+//       console.error('Database connection error:', error);
+//       res.status(503).send();
+//   }
+// });
+
  //get username from request
 const getEmail = (req) => {
     const authHeader = req.headers.authorization;
@@ -230,19 +240,10 @@ app.get('/v1/assignments', auth, async (req, res) => {
   });
 
 app.get('/healthz', async (req, res) => {
-  app.use(async (req, res, next) => {
-    try {
-        await sequelize.authenticate();
-        if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
-          return res.status(400).set(headers).end();
-        }
-        res.status(200).end();
-        next();
-    } catch (error) {
-        console.error('Database connection error:', error);
-        res.status(503).send();
-    }
-  });
+  if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+      return res.status(400).set(headers).end();
+  }
+  res.status(200).end();
 });
 
 app.all('/healthz', (req, res) => {
