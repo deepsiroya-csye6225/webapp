@@ -228,6 +228,17 @@ app.get('/v1/assignments', auth, async (req, res) => {
     res.status(405).end();
   });
 
+  app.use(async (req, res, next) => {
+    try {
+      await sequelize.authenticate();
+      console.log('Connection has been established successfully.');
+      next(); // Proceed to the next middleware or route
+    } catch (error) {
+      console.error('Unable to connect to the database:', error);
+      res.status(500).json({ message: 'Database connection error' });
+    }
+  });
+
 app.all('/healthz', (req, res) => {
   try{
     if (req.method !== 'GET') {
