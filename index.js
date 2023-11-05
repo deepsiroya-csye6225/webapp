@@ -236,16 +236,16 @@ app.all('/healthz', (req, res) => {
         try {
           await sequelize.authenticate();
           console.log('Connection has been established successfully.');
+          if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+            return res.status(400).set(headers).end();
+          }
+          res.status(200).end();
           next(); 
         } catch (error) {
           console.error('Unable to connect to the database:', error);
           res.status(500).json({ message: 'Database connection error' });
         }
       });
-      if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
-        return res.status(400).set(headers).end();
-      }
-      res.status(200).end();
     }
 });
 
