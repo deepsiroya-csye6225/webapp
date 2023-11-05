@@ -246,14 +246,14 @@ app.all('/healthz', (req, res) => {
 
 sequelize.authenticate().then(() => {
   console.log('Connection has been established successfully.');
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
 }).catch((error) => {
   console.error('Unable to connect to the database: ', error);
 });
 
 
  
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
 
 module.exports = app;
