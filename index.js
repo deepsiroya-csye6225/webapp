@@ -18,7 +18,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 dotenv.config();
 
-
+app.use(async (req, res, next) => {
+  try {
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+    next(); 
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+    res.status(500).json({ message: 'Database connection error' });
+  }
+});
 
  //get username from request
 const getEmail = (req) => {
@@ -228,20 +237,10 @@ app.all('/healthz', (req, res) => {
     if (req.method !== 'GET') {
       res.status(405).end();
     } else {
-      app.use(async (req, res, next) => {
-        try {
-          await sequelize.authenticate();
-          console.log('Connection has been established successfully.');
-          if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
-            return res.status(400).set(headers).end();
-          }
-          res.status(200).end();
-          next(); 
-        } catch (error) {
-          console.error('Unable to connect to the database:', error);
-          res.status(500).json({ message: 'Database connection error' });
+        if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+          return res.status(400).set(headers).end();
         }
-      });
+        res.status(200).end();
     }
 });
 
