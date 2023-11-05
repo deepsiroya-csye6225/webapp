@@ -228,32 +228,25 @@ app.get('/v1/assignments', auth, async (req, res) => {
     res.status(405).end();
   });
 
-  app.use(async (req, res, next) => {
-    try {
-      await sequelize.authenticate();
-      console.log('Connection has been established successfully.');
-      next(); // Proceed to the next middleware or route
-    } catch (error) {
-      console.error('Unable to connect to the database:', error);
-      res.status(500).json({ message: 'Database connection error' });
-    }
-  });
-
 app.all('/healthz', (req, res) => {
-  try{
     if (req.method !== 'GET') {
       res.status(405).end();
     } else {
+      app.use(async (req, res, next) => {
+        try {
+          await sequelize.authenticate();
+          console.log('Connection has been established successfully.');
+          next(); 
+        } catch (error) {
+          console.error('Unable to connect to the database:', error);
+          res.status(500).json({ message: 'Database connection error' });
+        }
+      });
       if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
         return res.status(400).set(headers).end();
       }
       res.status(200).end();
     }
-  }
-  catch (error) {
-    res.status(500).json({ message: 'Internal server error' });
-  }
-   
 });
 
 
