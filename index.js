@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 const {Assignment, Account, AccAssignment} = require('./models');
 const { sequelize } = require('./models');
 const auth = require('./auth');
+const logger = require('./logger');
 
 dotenv.config();
 
@@ -70,6 +71,7 @@ app.get('/v1/assignments', auth, async (req, res) => {
     try {
       // Retrieve a list of all assignments
       const assignments = await Assignment.findAll();
+      logger.info('This is an info message about getting assignments.'); 
       res.status(200).json(assignments);
     } catch (error) {
       console.error('Error fetching assignments:', error);
