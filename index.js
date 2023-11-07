@@ -9,6 +9,7 @@ const {Assignment, Account, AccAssignment} = require('./models');
 const { sequelize } = require('./models');
 const auth = require('./auth');
 const logger = require('./logger');
+const statsd = require('./node-statsD');
 
 dotenv.config();
 
@@ -71,7 +72,8 @@ app.get('/v1/assignments', auth, async (req, res) => {
     try {
       // Retrieve a list of all assignments
       const assignments = await Assignment.findAll();
-      logger.info('This is an info message about getting assignments.'); 
+      logger.info('Getting all assignments.'); 
+      statsd.increment('get_all_assign.metric.count');
       res.status(200).json(assignments);
     } catch (error) {
       console.error('Error fetching assignments:', error);
@@ -124,6 +126,9 @@ app.get('/v1/assignments', auth, async (req, res) => {
         assign_Id: newAssignment.id,
       });
   
+      
+      logger.info(`A new assignment created with id: ${newAssignment.id}`); 
+      statsd.increment('post_assign.metric.count');
       res.status(201).json(newAssignment);
     } catch (error) {
       console.error('Error creating assignment:', error);
@@ -143,6 +148,9 @@ app.get('/v1/assignments', auth, async (req, res) => {
         return res.status(404).json({ message: 'Assignment not found' });
       }
   
+      
+      logger.info(`Getting assignment with id: ${assignmentId}`); 
+      statsd.increment('get_assign.metric.count');
       res.status(200).json(assignment);
     } catch (error) {
       console.error('Error fetching assignment:', error);
@@ -167,8 +175,11 @@ app.get('/v1/assignments', auth, async (req, res) => {
       if (await authUser(email, assignmentId)) {
         await AccAssignment.destroy({ where: { assign_Id: assignmentId } });
         const results = await Assignment.destroy({ where: { id: assignmentId } });
+        logger.info(`A assignment is deleted with id: ${assignmentId}`); 
+        statsd.increment('delete_assign.metric.count');
         res.status(204).send();
       } else {
+        statsd.increment('delete_assign.metric.count');
         res.status(403).send({ message: "Forbidden" });
       }
 
@@ -226,8 +237,11 @@ app.get('/v1/assignments', auth, async (req, res) => {
     
         await assignment.save();
     
+        statsd.increment('update_assign.metric.count');
+        logger.info(`A assignment is updated with id: ${assignmentId}`); 
         res.status(200).json(assignment);
       } else {
+        statsd.increment('update_assign.metric.count');
         res.status(403).send({ message: "Forbidden" });
       }
       
@@ -238,14 +252,21 @@ app.get('/v1/assignments', auth, async (req, res) => {
   });
 
   app.patch('/v1/assignments/:id', (req, res) => {
+    statsd.increment('patch_assign.metric.count');
     res.status(405).end();
   });
 
 app.get('/healthz', async (req, res) => {
-  if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+  try {
+    statsd.increment('get_health.metric.count');
+    if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
       return res.status(400).set(headers).end();
+    }
+    res.status(200).end();
+  } catch (error) {
+      res.status(500).json({ message: 'Internal server error' });
   }
-  res.status(200).end();
+  
 });
 
 app.all('/healthz', (req, res) => {
