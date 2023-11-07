@@ -25,7 +25,7 @@ app.use(async (req, res, next) => {
       next();
   } catch (error) {
       console.error('Database connection error:', error);
-      res.status(503).send();
+      res.status(500).send();
   }
 });
 
@@ -269,12 +269,12 @@ app.all('/healthz', (req, res) => {
 sequelize.authenticate().then(() => {
   console.log('Connection has been established successfully.');
   app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port ${port}`);
   });
 }).catch((error) => {
   console.error('Unable to connect to the database: ', error);
   app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port ${port}`);
   });
 });
 

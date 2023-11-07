@@ -12,17 +12,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      # - name: Install MySQL client
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install mysql-client
-
-      # - name: Initialize MySQL
-      #   run: sudo systemctl start mysql.service
 
       - name: Use Node.js 18.x
         uses: actions/setup-node@v3
