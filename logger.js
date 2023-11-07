@@ -1,7 +1,7 @@
 const winston = require('winston');
 const winstonCloudWatch = require('winston-cloudwatch');
 
-const fileFormat = winston.format.combine(
+const logFormating = winston.format.combine(
   winston.format.timestamp({
       format: 'YYYY-MM-DDTHH:mm:ssZ'
   }),
@@ -21,13 +21,13 @@ var options = {
   },
   file: {
       level: 'debug',
-      filename: '/opt/webapp/csye6225.log',
+      filename: './csye6225.log',
       handleExceptions: true,
       json: false,
       maxsize: 5242880,
       maxFiles: 5,
       colorize: false,
-      format: fileFormat,
+      format: logFormating,
   },
 };
  
