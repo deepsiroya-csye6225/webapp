@@ -247,7 +247,7 @@ app.get('/v1/assignments', auth, async (req, res) => {
 app.get('/healthz', async (req, res) => {
   try {
     statsd.increment('get_health.metric.count');
-    if(sequelize.authenticate()) {
+    if(await sequelize.authenticate()) {
       if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
         return res.status(400).set(headers).end();
       }
