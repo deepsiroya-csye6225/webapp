@@ -19,16 +19,11 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(async (req, res, next) => {
-  try {
-      await sequelize.authenticate();
-      next();
-  } catch (error) {
-      console.error('Database connection error:', error);
-      res.status(503).send();
-  }
+sequelize.authenticate().then(() => {
+  console.log('Connection has been established successfully.');
+}).catch((error) => {
+  console.error('Unable to connect to the database: ', error);
 });
-
 
 app.all('/healthz', (req, res) => {
   statsd.increment('get_health.metric.count');
@@ -290,11 +285,7 @@ app.get('/v1/assignments', auth, async (req, res) => {
 //   res.status(405).end();
 // });
 
-sequelize.authenticate().then(() => {
-  console.log('Connection has been established successfully.');
-}).catch((error) => {
-  console.error('Unable to connect to the database: ', error);
-});
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
