@@ -12,6 +12,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -22,12 +32,12 @@ jobs:
           node-version: 18.x
           cache: 'npm'
       
-      # - name: Set .env file
-      #   run: |
-      #     echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
-      #     echo DB_NAME=${{ secrets.DB_NAME }} >> .env
-      #     echo DB_USER=${{ secrets.DB_USER }} >> .env
-      #     echo DB_HOSTNAME=${{ secrets.DB_HOSTNAME }} >> .env
+      - name: Set .env file
+        run: |
+          echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+          echo DB_USER=${{ secrets.DB_USER }} >> .env
+          echo DB_HOSTNAME=${{ secrets.DB_HOSTNAME }} >> .env
 
 
       - name: Install Dependencies
