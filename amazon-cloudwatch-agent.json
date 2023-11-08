@@ -11,6 +11,11 @@
                         "file_path": "/opt/webapp/csye6225.log",
                         "log_group_name": "csye6225",
                         "log_stream_name": "webapp"
+                    },
+                    {
+                        "file_path": "/var/log/auth.log",
+                        "log_group_name": "security",
+                        "log_stream_name": "audit-log"
                     }
                 ]
             }

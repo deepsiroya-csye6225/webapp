@@ -25,16 +25,6 @@ sequelize.authenticate().then(() => {
   console.error('Unable to connect to the database: ', error);
 });
 
-app.all('/healthz', (req, res) => {
-  statsd.increment('get_health.metric.count');
-  if (req.method !== 'GET') {
-      logger.info(`${req.method} is not allowed for /healthz`);
-      res.status(404).end();
-  } else {
-      logger.info('Checking healthz router');
-      res.status(200).end();
-  }
-});
 
  //get username from request
 const getEmail = (req) => {
@@ -264,6 +254,42 @@ app.get('/v1/assignments', auth, async (req, res) => {
     res.status(405).end();
   });
 
+  let firstCall = true;
+
+  // Health check endpoint
+  app.get('/healthz', (req, res) => {
+      statsd.increment('get_health.metric.count');
+      if (firstCall) {
+          firstCall = false; // Toggle the flag after the first check
+          logger.info('Checking healthz router');
+          return res.status(200).end();
+      }
+  
+      // Check the database connection status for subsequent calls
+      sequelize.authenticate()
+          .then(() => {
+            logger.info('Checking healthz router');
+            res.status(200).end();
+          })
+          .catch((error) => {
+              console.error('Database connection error:', error);
+              res.status(503).end();
+          });
+  });
+  
+
+  
+// app.all('/healthz', (req, res) => {
+//   statsd.increment('get_health.metric.count');
+//   if (req.method !== 'GET') {
+//       logger.info(`${req.method} is not allowed for /healthz`);
+//       res.status(404).end();
+//   } else {
+//       logger.info('Checking healthz router');
+//       res.status(200).end();
+//   }
+// });
+
 // app.get('/healthz', async (req, res) => {
 //   try {
 //     statsd.increment('get_health.metric.count');
@@ -279,11 +305,10 @@ app.get('/v1/assignments', auth, async (req, res) => {
 //   }
 // });
 
-// app.all('/healthz', (req, res) => {
-//   logger.info(`${req.method} is not allowed for /healthz`);
-//   req.method
-//   res.status(405).end();
-// });
+app.all('/healthz', (req, res) => {
+  logger.info(`${req.method} is not allowed for /healthz`);
+  res.status(405).end();
+});
 
 
 
