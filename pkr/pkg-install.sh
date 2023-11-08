@@ -29,6 +29,8 @@ sudo systemctl daemon-reload
 sudo systemctl start node-app
 sudo systemctl enable node-app
 
+sudo apt-get install rsyslog -y
+
 sudo wget https://s3.amazonaws.com/amazoncloudwatch-agent/debian/amd64/latest/amazon-cloudwatch-agent.deb
 sudo dpkg -i amazon-cloudwatch-agent.deb || sudo apt-get install -y -f
 
