@@ -19,14 +19,10 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(async (req, res, next) => {
-  try {
-      await sequelize.authenticate();
-      next();
-  } catch (error) {
-      console.error('Database connection error:', error);
-      res.status(503).send();
-  }
+sequelize.authenticate().then(() => {
+  console.log('Connection has been established successfully.');
+}).catch((error) => {
+  console.error('Unable to connect to the database: ', error);
 });
 
  //get username from request
@@ -251,7 +247,7 @@ app.get('/v1/assignments', auth, async (req, res) => {
 app.get('/healthz', (req, res) => {
   try {
     statsd.increment('get_health.metric.count');
-
+    sequelize.authenticate();
     if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
       return res.status(400).set(headers).end();
     }
@@ -266,14 +262,20 @@ app.all('/healthz', (req, res) => {
   res.status(405).end();
 });
 
-sequelize.authenticate().then(() => {
-  console.log('Connection has been established successfully.');
-}).catch((error) => {
-  console.error('Unable to connect to the database: ', error);
-});
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
 module.exports = app;
+
+// app.use(async (req, res, next) => {
+//   try {
+//       await sequelize.authenticate();
+//       next();
+//   } catch (error) {
+//       console.error('Database connection error:', error);
+//       res.status(503).send();
+//   }
+// });
