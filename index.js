@@ -252,10 +252,7 @@ app.get('/healthz', async (req, res) => {
         return res.status(400).set(headers).end();
       }
       res.status(200).end();
-    } else {
-      res.status(500).end();
-    }
-    
+    } 
   } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
   }
