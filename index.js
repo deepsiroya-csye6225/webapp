@@ -19,10 +19,26 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-sequelize.authenticate().then(() => {
-  console.log('Connection has been established successfully.');
-}).catch((error) => {
-  console.error('Unable to connect to the database: ', error);
+app.use(async (req, res, next) => {
+  try {
+      await sequelize.authenticate();
+      next();
+  } catch (error) {
+      console.error('Database connection error:', error);
+      res.status(503).send();
+  }
+});
+
+
+app.all('/healthz', (req, res) => {
+  statsd.increment('get_health.metric.count');
+  if (req.method !== 'GET') {
+      logger.info(`${req.method} is not allowed for /healthz`);
+      res.status(404).end();
+  } else {
+      logger.info('Checking healthz router');
+      res.status(200).end();
+  }
 });
 
  //get username from request
@@ -253,28 +269,32 @@ app.get('/v1/assignments', auth, async (req, res) => {
     res.status(405).end();
   });
 
-app.get('/healthz', async (req, res) => {
-  try {
-    statsd.increment('get_health.metric.count');
-    logger.info('Checking healthz router');
-    // const connectionStatus = await sequelize.authenticate();
-    // if (connectionStatus) {
-      res.status(200).end();
-    // } else {
-    //   res.status(500).end();
-    // }
-  } catch (error) {
-    res.status(500).end();
-  }
+// app.get('/healthz', async (req, res) => {
+//   try {
+//     statsd.increment('get_health.metric.count');
+//     logger.info('Checking healthz router');
+//     // const connectionStatus = await sequelize.authenticate();
+//     // if (connectionStatus) {
+//       res.status(200).end();
+//     // } else {
+//     //   res.status(500).end();
+//     // }
+//   } catch (error) {
+//     res.status(500).end();
+//   }
+// });
+
+// app.all('/healthz', (req, res) => {
+//   logger.info(`${req.method} is not allowed for /healthz`);
+//   req.method
+//   res.status(405).end();
+// });
+
+sequelize.authenticate().then(() => {
+  console.log('Connection has been established successfully.');
+}).catch((error) => {
+  console.error('Unable to connect to the database: ', error);
 });
-
-app.all('/healthz', (req, res) => {
-  logger.info(`${req.method} is not allowed for /healthz`);
-  req.method
-  res.status(405).end();
-});
-
-
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
