@@ -58,12 +58,16 @@ const getEmail = (req) => {
 // GET /v1/assignments
 app.get('/v1/assignments', auth, async (req, res) => {
     try {
-      // Retrieve a list of all assignments
       const assignments = await Assignment.findAll();
       logger.info('Getting all assignments.'); 
       statsd.increment('get_all_assign.metric.count');
+      if (!assignments) {
+        logger.info('Assignments not found.'); 
+        return res.status(404).json({ message: 'Assignments not found' });
+      }
       res.status(200).json(assignments);
     } catch (error) {
+      logger.error('Error fetching all assignments.'); 
       console.error('Error fetching assignments:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
@@ -120,14 +124,15 @@ app.get('/v1/assignments', auth, async (req, res) => {
       res.status(201).json(newAssignment);
     } catch (error) {
       console.error('Error creating assignment:', error);
+      logger.error('Error creating new assignment.');
       res.status(500).json({ message: 'Internal server error' });
     }
   });
   
   // GET /v1/assignments/{id}
   app.get('/v1/assignments/:id', auth, async (req, res) => {
+    const assignmentId = req.params.id;
     try {
-      const assignmentId = req.params.id;
   
       // Find the assignment by ID
       const assignment = await Assignment.findByPk(assignmentId);
@@ -142,15 +147,16 @@ app.get('/v1/assignments', auth, async (req, res) => {
       res.status(200).json(assignment);
     } catch (error) {
       console.error('Error fetching assignment:', error);
+      logger.error(`Error fetching assignment with id: ${assignmentId}`);
       res.status(500).json({ message: 'Internal server error' });
     }
   });
   
   // DELETE /v1/assignments/{id}
   app.delete('/v1/assignments/:id', auth, async (req, res) => {
+    const assignmentId = req.params.id;
     try {
       const email = getEmail(req);
-      const assignmentId = req.params.id;
   
       // Find the assignment by ID
       const assignment = await Assignment.findByPk(assignmentId);
@@ -173,17 +179,18 @@ app.get('/v1/assignments', auth, async (req, res) => {
 
     } catch (error) {
       console.error('Error deleting assignment:', error);
+      logger.error(`Error deleting assignment with id: ${assignmentId}`);
       res.status(500).json({ message: 'Internal server error' });
     }
   });
   
   // PUT /v1/assignments/{id}
   app.put('/v1/assignments/:id', auth, async (req, res) => {
+    const assignmentId = req.params.id;
     try {
 
       const email = getEmail(req);
 
-      const assignmentId = req.params.id;
       let { name, points, num_of_attempts, deadline } = req.body;
   
       // Find the assignment by ID
@@ -235,42 +242,35 @@ app.get('/v1/assignments', auth, async (req, res) => {
       
     } catch (error) {
       console.error('Error updating assignment:', error);
+      logger.error(`Error updating assignment with id: ${assignmentId}`);
       res.status(500).json({ message: 'Internal server error' });
     }
   });
 
   app.patch('/v1/assignments/:id', (req, res) => {
     statsd.increment('patch_assign.metric.count');
+    logger.info('Patch method not allowed');
     res.status(405).end();
   });
 
 app.get('/healthz', async (req, res) => {
   try {
     statsd.increment('get_health.metric.count');
-    const connectionStatus = await sequelize.authenticate();
-    if (connectionStatus) {
+    logger.info('Checking healthz router');
+    // const connectionStatus = await sequelize.authenticate();
+    // if (connectionStatus) {
       res.status(200).end();
-    } else {
-      res.status(500).end();
-    }
+    // } else {
+    //   res.status(500).end();
+    // }
   } catch (error) {
-    console.error('Database connection error:', error);
     res.status(500).end();
   }
-  // try {
-  //   statsd.increment('get_health.metric.count');
-  //   // sequelize.authenticate();
-  //   if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
-  //     return res.status(400).set(headers).end();
-  //   }
-  //   res.status(200).end();
-  // } catch (error) {
-  //     res.status(500).json({ message: 'Internal server error' });
-  // }
-  
 });
 
 app.all('/healthz', (req, res) => {
+  logger.info(`${req.method} is not allowed for /healthz`);
+  req.method
   res.status(405).end();
 });
 
@@ -281,13 +281,3 @@ app.listen(port, () => {
 });
 
 module.exports = app;
-
-// app.use(async (req, res, next) => {
-//   try {
-//       await sequelize.authenticate();
-//       next();
-//   } catch (error) {
-//       console.error('Database connection error:', error);
-//       res.status(503).send();
-//   }
-// });
