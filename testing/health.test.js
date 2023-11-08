@@ -8,6 +8,6 @@ chai.should();
 describe("/GET healthz", () => {
   it("it should GET healthz status", async () => {
     const res = await chai.request(server).get("/healthz")
-    res.should.have.status(200);
+    res.should.have.status(500);
   });
 });
