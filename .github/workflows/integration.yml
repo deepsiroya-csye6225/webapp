@@ -28,8 +28,6 @@ jobs:
           echo DB_NAME=${{ secrets.DB_NAME }} >> .env
           echo DB_USER=${{ secrets.DB_USER }} >> .env
           echo DB_HOSTNAME=${{ secrets.DB_HOSTNAME }} >> .env
-          echo DB_DIALECT=mysql >> .env
-
 
       - name: Install Dependencies
         run: npm ci
