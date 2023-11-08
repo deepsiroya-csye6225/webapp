@@ -258,12 +258,18 @@ app.get('/v1/assignments', auth, async (req, res) => {
 
 app.get('/healthz', async (req, res) => {
   try {
-    // await sequelize.authenticate();
     statsd.increment('get_health.metric.count');
+    const dbConnectionStatus = await sequelize.authenticate();
+
     if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
       return res.status(400).set(headers).end();
     }
-    res.status(200).end();
+
+    if (dbConnectionStatus) {
+      res.status(200).end();
+    } else {
+      res.status(500).end();
+    }
   } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
   }
