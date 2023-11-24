@@ -70,9 +70,17 @@ const Assignment = sequelize.define('assignments', {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+
     deadline: {
         type: DataTypes.DATE,
         allowNull: false,
+        validate: {
+            isDate: function (value) {
+                if (isNaN(Date.parse(value))) {
+                    throw new Error('Bad Request');
+                }
+            },
+        },
     },
 }, {
     timestamps: true,
@@ -87,15 +95,51 @@ const AccAssignment = sequelize.define('accassignments', {
         type: DataTypes.UUID,
         allowNull: false,
     },
+    submission_attempts: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: false,
+    },
 });
 
 AccAssignment.belongsTo(Account, { foreignKey: 'acc_Id' });
 AccAssignment.belongsTo(Assignment, { foreignKey: 'assign_Id' });
 
+
+const Submission = sequelize.define('submissions', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: () => uuidv4(), // Generate a UUID as the default value
+        primaryKey: true,
+        allowNull: false,
+    },
+    assignment_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+    },
+    submission_url: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    submission_date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.fn('NOW'),
+    },
+    assignment_updated: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.fn('NOW'),
+    },
+}, {
+    timestamps: true,
+});
+
+Submission.belongsTo(Assignment, { foreignKey: 'assignment_id' });
+
 const bootstrappingDB = async () => {
     try {
               const acc = [];
-              // const csvFilePath = path.join(__dirname, './opt/users.csv');
         
               const readStream = fs.createReadStream('./opt/users.csv');
               const csvParser = csv();
@@ -135,4 +179,4 @@ sequelize
         console.error('Database synchronization error:', error);
     });
 
-module.exports = { sequelize, Account, Assignment, AccAssignment,};
+module.exports = { sequelize, Account, Assignment, AccAssignment, Submission};
