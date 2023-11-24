@@ -5,11 +5,12 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 const csv = require('csv-parser');
 const bcrypt = require('bcrypt');
-const {Assignment, Account, AccAssignment} = require('./models');
+const {Assignment, Account, AccAssignment, Submission} = require('./models');
 const { sequelize } = require('./models');
 const auth = require('./auth');
 const logger = require('./logger');
 const statsd = require('./node-statsD');
+const AWS = require('aws-sdk');
 
 dotenv.config();
 
@@ -18,6 +19,8 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
+
+AWS.config.update({ region: 'us-east-1' });
 
 sequelize.authenticate().then(() => {
   console.log('Connection has been established successfully.');
@@ -59,6 +62,9 @@ const getEmail = (req) => {
 // GET /v1/assignments
 app.get('/v1/assignments', auth, async (req, res) => {
     try {
+      if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+        res.status(400).end();
+      }
       const assignments = await Assignment.findAll();
       logger.info('Getting all assignments.'); 
       statsd.increment('get_all_assign.metric.count');
@@ -78,17 +84,17 @@ app.get('/v1/assignments', auth, async (req, res) => {
   app.post('/v1/assignments', auth, async (req, res) => {
     try {
 
-        const fields = req.body;
-        for (const key in fields) {
-          if ( key !== "name" && key !== "points" && key !== "num_of_attempts" && key !== "deadline" ) {
-            return res.status(400).json({error: "Bad Request: Invalid field in request body"});
-          }
+      const fields = req.body;
+      for (const key in fields) {
+        if ( key !== "name" && key !== "points" && key !== "num_of_attempts" && key !== "deadline" ) {
+          return res.status(400).json({error: "Bad Request: Invalid field in request body"});
         }
-    
-        //to check if any input fields is null
-        if (!req.body.name == null || !req.body.points || !req.body.num_of_attempts || !req.body.deadline == null) {
-          return res.status(400).json({error: "Bad Request: Missing field in request body"});
-        }
+      }
+  
+      //to check if any input fields is null
+      if (!req.body.name == null || !req.body.points || !req.body.num_of_attempts || !req.body.deadline == null) {
+        return res.status(400).json({error: "Bad Request: Missing field in request body"});
+      }
 
       const email = getEmail(req);
     
@@ -100,10 +106,13 @@ app.get('/v1/assignments', auth, async (req, res) => {
         return res.status(400).json({ error: 'Assignment name must be a string.' });
       }
 
-      points = parseInt(req.body.points);
+      if (!Number.isInteger(points) || points < 1 || points > 10) {
+        return res.status(400).json({ error: 'Assignment points must be an integer value between 1 and 10.' });
+      }
 
-      if (isNaN(points) || !Number.isInteger(points) || points < 1 || points > 10) {
-          return res.status(400).json({ error: 'Assignment points must be a numeric value between 1 and 10.' });
+
+      if (!Number.isInteger(num_of_attempts) || num_of_attempts < 0) {
+        return res.status(400).json({ error: 'Assignment attempts must be a numeric value greater than 0.' });
       }
   
       // Create a new assignment
@@ -134,6 +143,10 @@ app.get('/v1/assignments', auth, async (req, res) => {
   app.get('/v1/assignments/:id', auth, async (req, res) => {
     const assignmentId = req.params.id;
     try {
+
+      if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+        res.status(400).end();
+      }
   
       // Find the assignment by ID
       const assignment = await Assignment.findByPk(assignmentId);
@@ -157,6 +170,11 @@ app.get('/v1/assignments', auth, async (req, res) => {
   app.delete('/v1/assignments/:id', auth, async (req, res) => {
     const assignmentId = req.params.id;
     try {
+
+      if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+        return res.status(400).send();
+      }
+
       const email = getEmail(req);
   
       // Find the assignment by ID
@@ -235,7 +253,7 @@ app.get('/v1/assignments', auth, async (req, res) => {
     
         statsd.increment('update_assign.metric.count');
         logger.info(`A assignment is updated with id: ${assignmentId}`); 
-        res.status(200).json(assignment);
+        res.status(204).json(assignment);
       } else {
         statsd.increment('update_assign.metric.count');
         res.status(403).send({ message: "Forbidden" });
@@ -247,6 +265,78 @@ app.get('/v1/assignments', auth, async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+
+  app.post('/v1/assignments/:id/submissions', auth, async (req, res) => {
+    try {
+        const assignmentId = req.params.id;
+        const userEmail = getEmail(req);
+        const { submission_url } = req.body;
+
+        const assignment = await Assignment.findByPk(assignmentId);
+        if (!assignment) {
+            return res.status(404).json({ message: 'Assignment not found' });
+        }
+
+        const currentDate = new Date();
+        if (currentDate > assignment.deadline) {
+            return res.status(400).json({ message: 'Assignment deadline has passed' });
+        }
+
+        const userAccount = await Account.findOne({ where: { email: userEmail } });
+
+        // Fetch or create AccAssignment entry for the user and assignment
+        let [accAssignment, created] = await AccAssignment.findOrCreate({
+            where: {
+                acc_Id: userAccount.id, // Assuming you have userAccount available
+                assign_Id: assignmentId,
+            },
+            defaults: {
+                submission_attempts: 0,
+            },
+        });
+
+        const maxRetries = assignment.num_of_attempts;
+
+        if (accAssignment.submission_attempts >= maxRetries) {
+            return res.status(400).json({ message: 'Exceeded maximum submission attempts' });
+        }
+
+        // Create the submission
+        await Submission.create({
+            assignment_id: assignmentId,
+            submission_url: submission_url,
+            submission_date: currentDate,
+        });
+
+        // Increment submission_attempts count
+        if (!created) {
+          accAssignment.submission_attempts += 1;
+          await accAssignment.save();
+        }
+
+        const sns = new AWS.SNS();
+
+        const params = {
+          Message: JSON.stringify({
+              email: userEmail, 
+              url: submission_url, 
+          }),
+          TopicArn: process.env.SNS_TOPIC_ARN, 
+        };
+        
+        sns.publish(params, (err, data) => {
+            if (err) console.error('Error publishing to SNS:', err);
+            else console.log('Published to SNS:', data);
+        });
+
+        return res.status(201).json({ message: 'Submission successful' });
+    } catch (error) {
+        console.error('Error creating submission:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
 
   app.patch('/v1/assignments/:id', (req, res) => {
     statsd.increment('patch_assign.metric.count');
@@ -277,33 +367,6 @@ app.get('/v1/assignments', auth, async (req, res) => {
           });
   });
   
-
-  
-// app.all('/healthz', (req, res) => {
-//   statsd.increment('get_health.metric.count');
-//   if (req.method !== 'GET') {
-//       logger.info(`${req.method} is not allowed for /healthz`);
-//       res.status(404).end();
-//   } else {
-//       logger.info('Checking healthz router');
-//       res.status(200).end();
-//   }
-// });
-
-// app.get('/healthz', async (req, res) => {
-//   try {
-//     statsd.increment('get_health.metric.count');
-//     logger.info('Checking healthz router');
-//     // const connectionStatus = await sequelize.authenticate();
-//     // if (connectionStatus) {
-//       res.status(200).end();
-//     // } else {
-//     //   res.status(500).end();
-//     // }
-//   } catch (error) {
-//     res.status(500).end();
-//   }
-// });
 
 app.all('/healthz', (req, res) => {
   logger.info(`${req.method} is not allowed for /healthz`);
