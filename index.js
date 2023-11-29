@@ -10,6 +10,7 @@ const { sequelize } = require('./models');
 const auth = require('./auth');
 const logger = require('./logger');
 const statsd = require('./node-statsD');
+const AWS = require('aws-sdk');
 
 const AWS = require('aws-sdk');
 AWS.config.update({ region: 'us-east-1' });
@@ -22,6 +23,8 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
+
+AWS.config.update({ region: 'us-east-1' });
 
 sequelize.authenticate().then(() => {
   console.log('Connection has been established successfully.');
