@@ -289,7 +289,7 @@ app.get('/v1/assignments', auth, async (req, res) => {
         // Fetch or create AccAssignment entry for the user and assignment
         let [accAssignment, created] = await AccAssignment.findOrCreate({
             where: {
-                acc_Id: userAccount.id, // Assuming you have userAccount available
+                acc_Id: userAccount.id, 
                 assign_Id: assignmentId,
             },
             defaults: {
@@ -309,6 +309,9 @@ app.get('/v1/assignments', auth, async (req, res) => {
             submission_url: submission_url,
             submission_date: currentDate,
         });
+
+        statsd.increment('submit_assign.metric.count');
+        logger.info(`A assignment is submitted with id: ${assignmentId}`); 
 
         // Increment submission_attempts count
         if (!created) {
@@ -334,6 +337,7 @@ app.get('/v1/assignments', auth, async (req, res) => {
         return res.status(201).json({ message: 'Submission successful' });
     } catch (error) {
         console.error('Error creating submission:', error);
+        logger.error(`Error submitting assignment with id: ${assignmentId}`);
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
