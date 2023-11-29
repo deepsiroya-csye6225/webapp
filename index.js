@@ -10,7 +10,10 @@ const { sequelize } = require('./models');
 const auth = require('./auth');
 const logger = require('./logger');
 const statsd = require('./node-statsD');
+
 const AWS = require('aws-sdk');
+AWS.config.update({ region: 'us-east-1' });
+const sns = new AWS.SNS();
 
 dotenv.config();
 
@@ -19,8 +22,6 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
-
-AWS.config.update({ region: 'us-east-1' });
 
 sequelize.authenticate().then(() => {
   console.log('Connection has been established successfully.');
@@ -313,8 +314,6 @@ app.get('/v1/assignments', auth, async (req, res) => {
           accAssignment.submission_attempts += 1;
           await accAssignment.save();
         }
-
-        const sns = new AWS.SNS();
 
         const params = {
           Message: JSON.stringify({
