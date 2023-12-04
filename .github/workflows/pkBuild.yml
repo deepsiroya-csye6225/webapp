@@ -73,9 +73,9 @@ jobs:
     - name: Configure AWS Credentials for Demo
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        AWS_ACCESS_KEY_ID: ${{ secrets.DEMO_AWS_ACCESS_KEY }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_AWS_SECRET_KEY }}
-        AWS_REGION: us-east-1
+        aws-access-key-id: ${{ secrets.DEMO_AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.DEMO_AWS_SECRET_KEY }}
+        aws-region: us-east-1
 
     - name: Retrieve Launch Template ID
       run: |
