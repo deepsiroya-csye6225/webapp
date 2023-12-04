@@ -32,7 +32,4 @@
 ### To install mysql 
 - Run npm install --save mysql2
 
-### Command to import SSL certificate from any service to Amazon ACM
-- aws acm import-certificate --certificate fileb://demo_deppcloud_me.crt --private-key fileb://demo_deppcloud_me.key --certificate-chain fileb://deppcloud-ca-bundle.crt --region us-east-1 --profile demo
-
 ## Webapp final test
