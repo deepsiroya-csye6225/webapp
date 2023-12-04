@@ -69,3 +69,59 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
         AMI_ID: ${{ env.AMI_ID }}
+
+    - name: Configure AWS Credentials for Demo
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        AWS_ACCESS_KEY_ID: ${{ secrets.DEMO_AWS_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_AWS_SECRET_KEY }}
+        AWS_REGION: us-east-1
+
+    - name: Retrieve Launch Template ID
+      run: |
+        LT_ID=$(aws ec2 describe-launch-templates --query "LaunchTemplates[?contains(LaunchTemplateName, `asg_launch_temp`) == `true`].LaunchTemplateId" --output text)
+        if [ -z "$LT_ID" ]; then
+          echo "LT_ID not found" >> $GITHUB_ENV
+          exit 1
+        else
+          echo "LT_ID=$LT_ID" >> $GITHUB_ENV
+        fi
+
+    - name: Retrieve Auto Scaling Group Name
+      run: |
+        ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[?contains(AutoScalingGroupName, `webappASG` == `true`)].AutoScalingGroupName" --output text)
+        if [ -z "$ASG_NAME" ]; then
+          echo "ASG_NAME not found" >> $GITHUB_ENV
+          exit 1
+        else
+          echo "ASG_NAME=$ASG_NAME" >> $GITHUB_ENV
+        fi
+
+    - name: Create New Launch Template Version for Demo
+      if: env.ASG_NAME != 'ASG_NAME not found' && env.LT_ID != 'LT_ID not found'
+      run: |
+        NEW_LT_VERSION=$(aws ec2 create-launch-template-version --launch-template-id ${{ env.LT_ID }} --source-version '$Latest' --launch-template-data '{"ImageId": "${{ env.AMI_ID }}"}' --query 'LaunchTemplateVersion.VersionNumber' --output text)
+        echo "NEW_LT_VERSION=$NEW_LT_VERSION" >> $GITHUB_ENV
+
+
+    - name: Refresh instances in Demo account
+      if: env.ASG_NAME != 'ASG_NAME not found' && env.LT_ID != 'LT_ID not found'
+      run: |
+        aws autoscaling start-instance-refresh --auto-scaling-group-name ${{ env.ASG_NAME }}
+
+    - name: Wait for instance refresh completion
+      if: env.ASG_NAME != 'ASG_NAME not found' && env.LT_ID != 'LT_ID not found'
+      run: |
+        while true; do
+              status=$(aws autoscaling describe-instance-refreshes --auto-scaling-group-name ${{ env.ASG_NAME }} --query 'InstanceRefreshes[0].Status' --output text)
+              if [ "$status" = "Successful" ]; then
+                echo "Instance refresh completed successfully"
+                break
+              elif [[ $status == "Failed" ]]; then
+                echo "Instance refresh failed"
+                exit 1
+              else
+                echo "Waiting for instance refresh..."
+                sleep 30
+              fi
+          done
