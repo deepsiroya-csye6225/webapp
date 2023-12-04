@@ -79,7 +79,7 @@ jobs:
 
     - name: Retrieve Launch Template ID
       run: |
-        LT_ID=$(aws ec2 describe-launch-templates --query "LaunchTemplates[?contains(LaunchTemplateName, `asg_launch_temp`) == `true`].LaunchTemplateId" --output text)
+        LT_ID=$(aws ec2 describe-launch-templates --query 'LaunchTemplates[?contains(LaunchTemplateName, `asg_launch_temp`) == `true`].LaunchTemplateId' --output text)
         if [ -z "$LT_ID" ]; then
           echo "LT_ID not found" >> $GITHUB_ENV
           exit 1
@@ -89,7 +89,7 @@ jobs:
 
     - name: Retrieve Auto Scaling Group Name
       run: |
-        ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[?contains(AutoScalingGroupName, `webappASG` == `true`)].AutoScalingGroupName" --output text)
+        ASG_NAME=$(aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups[?contains(AutoScalingGroupName, `webappASG`) == `true`].AutoScalingGroupName' --output text)
         if [ -z "$ASG_NAME" ]; then
           echo "ASG_NAME not found" >> $GITHUB_ENV
           exit 1
