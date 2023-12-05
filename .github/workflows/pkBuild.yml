@@ -117,7 +117,7 @@ jobs:
               if [ "$status" = "Successful" ]; then
                 echo "Instance refresh completed successfully"
                 break
-              elif [[ $status == "Failed" ]]; then
+              elif [[ $status == "Cancelled" ]]; then
                 echo "Instance refresh failed"
                 exit 1
               else
