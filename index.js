@@ -62,7 +62,7 @@ const getEmail = (req) => {
 
 
 // GET /v1/assignments
-app.get('/v2/assignments', auth, async (req, res) => {
+app.get('/demo/assignments', auth, async (req, res) => {
     try {
       if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
         res.status(400).end();
@@ -83,7 +83,7 @@ app.get('/v2/assignments', auth, async (req, res) => {
   });
   
   // POST /v2/assignments
-  app.post('/v2/assignments', auth, async (req, res) => {
+  app.post('/demo/assignments', auth, async (req, res) => {
     try {
 
       const fields = req.body;
@@ -142,7 +142,7 @@ app.get('/v2/assignments', auth, async (req, res) => {
   });
   
   // GET /v1/assignments/{id}
-  app.get('/v2/assignments/:id', auth, async (req, res) => {
+  app.get('/demo/assignments/:id', auth, async (req, res) => {
     const assignmentId = req.params.id;
     try {
 
@@ -168,8 +168,8 @@ app.get('/v2/assignments', auth, async (req, res) => {
     }
   });
   
-  // DELETE /v1/assignments/{id}
-  app.delete('/v2/assignments/:id', auth, async (req, res) => {
+  // DELETE /demo/assignments/{id}
+  app.delete('/demo/assignments/:id', auth, async (req, res) => {
     const assignmentId = req.params.id;
     try {
 
@@ -206,7 +206,7 @@ app.get('/v2/assignments', auth, async (req, res) => {
   });
   
   // PUT /v1/assignments/{id}
-  app.put('/v2/assignments/:id', auth, async (req, res) => {
+  app.put('/demo/assignments/:id', auth, async (req, res) => {
     const assignmentId = req.params.id;
     try {
 
@@ -268,7 +268,7 @@ app.get('/v2/assignments', auth, async (req, res) => {
     }
   });
 
-  app.post('/v2/assignments/:id/submissions', auth, async (req, res) => {
+  app.post('/demo/assignments/:id/submissions', auth, async (req, res) => {
     try {
         const assignmentId = req.params.id;
         const userEmail = getEmail(req);
@@ -344,7 +344,7 @@ app.get('/v2/assignments', auth, async (req, res) => {
 
 
 
-  app.patch('/v2/assignments/:id', (req, res) => {
+  app.patch('/demo/assignments/:id', (req, res) => {
     statsd.increment('patch_assign.metric.count');
     logger.info('Patch method not allowed');
     res.status(405).end();
